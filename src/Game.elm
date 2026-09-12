@@ -9,7 +9,6 @@ import Localization exposing (..)
 
 type alias Game =
   { hand : Hand
-  , event : Maybe Event
   , events : EventDeck
   , reshuffle : EventDeck -- These are events that will be reshuffled.
   , randomSeed : Random.Seed
@@ -112,7 +111,6 @@ getEventOrErr id = getEvent id |> Maybe.withDefault errorEvent
 newGame : Random.Seed -> Game
 newGame r =
   { hand = [ Cat, ResourceCard CatFood ]
-  , event = Nothing
   , events = Array.toList allEvents
   , reshuffle = []
   , randomSeed = r
@@ -143,14 +141,11 @@ shuffleList l s1 =
       in ( before ++ (head :: after), s3 )
 
 
-nextEvent : Game -> Result String Game
-nextEvent g =
-  case g.event of
-    Just e -> Err ("there is already an event named '" ++ e.name.en ++ "'")
-    Nothing ->
-      case g.events of
-        [] ->
-          if List.isEmpty g.reshuffle
-          then Err ("the reshuffle event deck is empty")
-          else g |> reshuffle |> nextEvent
-        head :: tail -> Ok { g | event = Just head, events = tail }
+-- nextEvent : Game -> Result String Game
+-- nextEvent g =
+--   case g.events of
+--     [] ->
+--       if List.isEmpty g.reshuffle
+--       then Err ("the reshuffle event deck is empty")
+--       else g |> reshuffle |> nextEvent
+--     head :: tail -> Ok { g | events = tail }
