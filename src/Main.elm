@@ -37,7 +37,7 @@ main =
 
 
 init : Flags -> ( Model, Cmd Msg )
-init flags = ( { local = Hebrew, modelState = Menu }, Cmd.none )
+init _ = ( { local = Hebrew, modelState = Menu }, Cmd.none )
 
 
 view : Model -> Document Msg
