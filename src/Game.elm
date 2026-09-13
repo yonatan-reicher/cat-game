@@ -15,7 +15,7 @@ type alias Game =
   }
 
 
-type alias Hand = List Card
+type alias Hand = List { card : Card, selected : Bool }
 
 
 type Card
@@ -110,7 +110,9 @@ getEventOrErr id = getEvent id |> Maybe.withDefault errorEvent
 
 newGame : Random.Seed -> Game
 newGame r =
-  { hand = [ Cat, ResourceCard CatFood ]
+  { hand = 
+      [ Cat, ResourceCard CatFood ]
+      |> List.map (\c -> { card = c, selected = False })
   , events = Array.toList allEvents
   , reshuffle = []
   , randomSeed = r

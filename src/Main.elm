@@ -9,6 +9,7 @@ import Random
 -- Our imports
 import Localization exposing (..)
 import Game exposing (..)
+import Jrelm.List as JList
 
 
 type alias Flags = ()
@@ -22,6 +23,7 @@ type ModelState
 type Msg
   = EmptyMsg
   | NewGame
+  | SetCardSelected Int Bool
 
 
 main : Program Flags Model Msg
@@ -70,32 +72,40 @@ menu m =
 
 game : Model -> Game -> List (Html Msg)
 game model g =
-  [ div
+  [ event model (List.head g.events)
+  , div
+      [ style "height" "2px"
+      , style "background-color" "black"
+      ]
+      []
+  , div
       [ style "display" "flex"
       , style "flex-direction" "column"
+      , style "align-items" "center"
       ]
       (hand model g.hand)
-  , event model (List.head g.events)
   ]
 
 
 hand : Model -> Hand -> List (Html Msg)
-hand m h = List.map (card m) h
+hand m h = List.indexedMap (card m) h
 
 
-card : Model -> Card -> Html Msg
-card m c =
-  case c of
+card : Model -> Int -> { card : Card, selected : Bool } -> Html Msg
+card m index c =
+  let f =
+        span [ onClick (SetCardSelected index (not c.selected)) ]
+        << if c.selected then List.singleton << b [] else (\x -> x)
+  in
+  case c.card of
     Cat ->
-      span
-        []
+      f
         [ text
           <| lStringGet m.local
           <| { en = "Kitty", he = "חתולי" }
         ]
     ResourceCard CatFood ->
-      span
-        []
+      f
         [ text
           <| lStringGet m.local
           <| { en = "Cat Food", he = "אוכל חתולים" }
@@ -109,7 +119,7 @@ event m maybe =
   <| case maybe of
       Nothing -> []
       Just e ->
-        [ text <| lStringGet m.local e.name
+        [ h3 [] [ text <| lStringGet m.local e.name ]
         , div
             [ style "display" "flex"
             , style "flex-direction" "row"
@@ -139,13 +149,31 @@ update msg =
   case msg of
     EmptyMsg -> \model -> ( model, Cmd.none )
     NewGame -> newGame
+    SetCardSelected index v -> setCardSelected index v
 
 
-newGame : Model -> ( Model, Cmd Msg )
+newGame : Update
 newGame m =
   ( { m | modelState = Game <| Game.newGame <| Random.initialSeed 0 }
   , Cmd.none
   )
+
+
+setCardSelected : Int -> Bool -> Update
+setCardSelected index v m =
+  case m.modelState of
+    Menu -> ( m, Cmd.none ) -- TODO: Panic. This shouldn't happen.
+    Game g ->
+      ( { m
+        | modelState = 
+            Game
+              { g
+              | hand =
+                  JList.mapIndex index (\c -> { c | selected = v }) g.hand
+              }
+        }
+      , Cmd.none
+      )
 
 
 subscriptions : Model -> Sub Msg
