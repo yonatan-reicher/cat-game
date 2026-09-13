@@ -42,6 +42,12 @@ type alias Event =
 type alias EventId = Int
 
 
+type OptionIdx
+  = Option1
+  | Option2
+  | Option3
+
+
 -- A way to react to an event.
 type alias Option =
   { text : LString
@@ -51,9 +57,20 @@ type alias Option =
   }
 
 
-type Requirement
+type alias Requirement =
+  { kind : RequirementKind
+  , consumes : Consumes
+  }
+
+
+type RequirementKind
   = CatRequirement
   | ResourceRequirement Resource
+
+
+type Consumes
+  = Consumes
+  | DoesntConsume
 
 
 type Outcome
@@ -69,7 +86,7 @@ allEvents =
     , option2 =
         Just
           { text = { en = "Feed the beasts", he = "האכילי את החיות" }
-          , requirements = [ ResourceRequirement CatFood ]
+          , requirements = [ Requirement (ResourceRequirement CatFood) Consumes ]
           , outcomes = []
           , returns = True
           }
@@ -151,3 +168,75 @@ shuffleList l s1 =
 --       then Err ("the reshuffle event deck is empty")
 --       else g |> reshuffle |> nextEvent
 --     head :: tail -> Ok { g | events = tail }
+
+
+eventGetOption : OptionIdx -> Event -> Maybe Option
+eventGetOption i e =
+  case i of
+    Option1 -> e.option1
+    Option2 -> e.option2
+    Option3 -> e.option3
+
+
+getOption : OptionIdx -> Game -> Maybe Option
+getOption i g =
+  List.head g.events |> Maybe.andThen (eventGetOption i)
+
+
+selectOption : OptionIdx -> Game -> Result String Game
+selectOption i g =
+  let cards : List Card
+      cards = List.filter (\c -> c.selected) g.hand |> List.map (\c -> c.card) in
+  getOption i g
+  |> Result.fromMaybe "no such option"
+  |> Result.andThen (\option ->
+    matchRequirements option.requirements cards
+    |> Result.fromMaybe "requirements do not match"
+    |> Result.map (\matches -> (option, matches)))
+  |> Result.map (\(option, matches) ->
+    matches |> List.filterMap (\(c, maybeR) -> 
+      case maybeR |> Maybe.map (\r -> r.consumes) of
+        Just Consumes -> Nothing
+        Nothing -> Just c
+        Just DoesntConsume -> Just c)
+    |> \newCards ->
+      { g | hand = List.map (\c -> { card = c, selected = False }) newCards })
+
+
+type alias MatchedRequirements = List (Card, Maybe Requirement)
+
+
+{-| Returns the list of cards, with the requirements matched against them -}
+matchRequirements : List Requirement -> List Card -> Maybe MatchedRequirements
+matchRequirements rs cs =
+  -- TODO: sort the requirements and sort the cards
+  let step card (matches, rsRest) =
+        case findMatchingRequirement rsRest card of
+          (maybeR, others) -> ((card, maybeR) :: matches, others)
+  in cs
+    |> List.foldl step ([], rs)
+    |> \(matches, rsRest) ->
+        if List.isEmpty rsRest then Just matches else Nothing
+
+
+findMatchingRequirement : List Requirement -> Card -> (Maybe Requirement, List Requirement)
+findMatchingRequirement rs c =
+  case rs of
+    [] -> (Nothing, rs)
+    head :: tail ->
+      if matchRequirement head c
+      then (Just head, tail)
+      else
+        findMatchingRequirement tail c
+        |> \(r, rest) -> (r, head :: rest)
+
+
+matchRequirement : Requirement -> Card -> Bool
+matchRequirement r c =
+  case r.kind of
+    CatRequirement -> c == Cat
+    ResourceRequirement resource ->
+      case c of
+        ResourceCard otherResource -> resource == otherResource
+        _ -> False
+

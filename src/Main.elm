@@ -24,6 +24,7 @@ type Msg
   = EmptyMsg
   | NewGame
   | SetCardSelected Int Bool
+  | OptionClicked OptionIdx
 
 
 main : Program Flags Model Msg
@@ -125,22 +126,26 @@ event m maybe =
             , style "flex-direction" "row"
             , style "justify-content" "center"
             ]
-            [ option m e.option1
-            , option m e.option2
-            , option m e.option3
+            [ option m e.option1 |> Html.map (\_ -> OptionClicked Option1)
+            , option m e.option2 |> Html.map (\_ -> OptionClicked Option2)
+            , option m e.option3 |> Html.map (\_ -> OptionClicked Option3)
             ]
         ]
 
 
-option : Model -> Maybe Option -> Html Msg
+type OptionMsg = Clicked
+option : Model -> Maybe Option -> Html OptionMsg
 option m maybeO =
-  case maybeO of
-    Nothing -> div [] []
-    Just o ->
-      div
-        []
-        [ text <| lStringGet m.local o.text
-        ]
+  div
+    [ style "border" "1x solid"
+    , style "border-radius" "6px"
+    , onClick Clicked
+    ]
+    <| case maybeO of
+        Nothing -> []
+        Just o ->
+            [ text <| lStringGet m.local o.text
+            ]
 
 
 type alias Update = Model -> ( Model, Cmd Msg )
@@ -150,6 +155,7 @@ update msg =
     EmptyMsg -> \model -> ( model, Cmd.none )
     NewGame -> newGame
     SetCardSelected index v -> setCardSelected index v
+    OptionClicked index -> selectOption index
 
 
 newGame : Update
@@ -174,6 +180,25 @@ setCardSelected index v m =
         }
       , Cmd.none
       )
+
+
+selectOption : OptionIdx -> Update
+selectOption index m =
+  (case m.modelState of
+    Game g ->
+      g
+      |> Game.selectOption index
+      |> Result.map (\newG ->
+          ( { m
+            | modelState = Game newG
+            }
+          , Cmd.none
+          ))
+    _ -> Err "no game")
+  |> \r -> -- TODO:
+    case r of
+      Err s -> ( m, Cmd.none )
+      Ok ret ->ret
 
 
 subscriptions : Model -> Sub Msg
