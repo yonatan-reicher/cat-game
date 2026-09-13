@@ -177,4 +177,4 @@ setCardSelected index v m =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model = Sub.none
+subscriptions _ = Sub.none
