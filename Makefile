@@ -1,4 +1,4 @@
-.PHONY: default build-all test
+.PHONY: default build-all test debug
 
 BUILD_DIR = build
 ELMJS = $(BUILD_DIR)/elm.js
@@ -9,8 +9,11 @@ default: build-all
 
 build-all: $(ELMJS)
 
+debug: ELM_FLAGS += --debug
+debug: build-all
+
 $(ELMJS): $(ELM_FILES) | $(BUILD_DIR)
-	elm make $(ELM_MAIN) --output=$(ELMJS)
+	elm make $(ELM_MAIN) --output=$(ELMJS) $(ELM_FLAGS)
 
 $(BUILD_DIR):
 	mkdir -p $@
