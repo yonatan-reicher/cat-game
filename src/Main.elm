@@ -8,6 +8,7 @@ import Html.Events exposing (..)
 import Random
 -- Our imports
 import Exception exposing (Exception)
+import Except exposing (Except)
 import Game exposing (..)
 import Jrelm.Html exposing (stylesheet)
 import LHtml exposing (LHtml, ltext)
@@ -30,6 +31,7 @@ type Msg
   | NewGame
   | GameMsg View.Game.Msg
   | DismissException
+  | ThrowException Exception
 
 
 main : Program Flags Model Msg
@@ -142,6 +144,7 @@ update msg =
     NewGame -> newGame
     GameMsg m -> gameMsg m
     DismissException -> dismissException
+    ThrowException e -> throwException e
 
 
 newGame : Update
@@ -156,13 +159,20 @@ gameMsg msg m =
   case m.modelState of
     Game g ->
       View.Game.update msg g
-      |> \(gg, c) -> ({ m | modelState = Game gg }, Cmd.map GameMsg c)
-    _ -> ( m, Cmd.none ) -- TODO: Show an error
+      |> Result.map (\(gg, c) -> ({ m | modelState = Game gg }, Cmd.map GameMsg c))
+      |> Except.catch (\e -> throwException e m)
+    _ ->
+      throwException (Exception.Str "got a game msg when not in a game state") m
 
 
 dismissException : Update
 dismissException m =
   ( { m | exceptions = List.tail m.exceptions |> Maybe.withDefault [] }, Cmd.none )
+
+
+throwException : Exception -> Update
+throwException e m =
+  ( { m | exceptions = e :: m.exceptions } , Cmd.none )
 
 
 subscriptions : Model -> Sub Msg

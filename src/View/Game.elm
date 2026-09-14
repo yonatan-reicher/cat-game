@@ -5,6 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 -- Our
+import Except exposing (Except)
 import Game exposing (..)
 import LHtml exposing (..)
 import Localization exposing (..)
@@ -191,15 +192,12 @@ handHeight : Int
 handHeight = handWidth * 2 // 3
 
 
-update : Msg -> Game -> ( Game, Cmd Msg )
+update : Msg -> Game -> Except ( Game, Cmd Msg )
 update msg g =
   case msg of
-    EmptyMsg -> ( g, Cmd.none )
-    SetCardSelected i b -> ( setCardSelected i b g, Cmd.none )
+    EmptyMsg -> Ok ( g, Cmd.none )
+    SetCardSelected i b -> Ok ( setCardSelected i b g, Cmd.none )
     OptionClicked i ->
       selectOption i g
-      |> \r ->
-        case r of
-          Err _ -> ( g, Cmd.none ) -- TODO: handle
-          Ok newG -> ( newG, Cmd.none )
+      |> Result.map (\gg -> ( gg, Cmd.none ))
 

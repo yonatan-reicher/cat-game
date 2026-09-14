@@ -4,6 +4,8 @@ module Game exposing (..)
 import Array exposing (Array)
 import Random
 -- My stuff
+import Exception exposing (Exception)
+import Except exposing (Except, okOrStr)
 import Localization exposing (..)
 import Jrelm.List as JList
 
@@ -184,15 +186,15 @@ getOption i g =
   List.head g.events |> Maybe.andThen (eventGetOption i)
 
 
-selectOption : OptionIdx -> Game -> Result String Game
+selectOption : OptionIdx -> Game -> Except Game
 selectOption i g =
   let cards : List Card
       cards = List.filter (\c -> c.selected) g.hand |> List.map (\c -> c.card) in
   getOption i g
-  |> Result.fromMaybe "no such option"
+  |> okOrStr "no such option"
   |> Result.andThen (\option ->
     matchRequirements option.requirements cards
-    |> Result.fromMaybe "requirements do not match"
+    |> okOrStr "requirements do not match"
     |> Result.map (\matches -> (option, matches)))
   |> Result.map (\(option, matches) ->
     matches |> List.filterMap (\(c, maybeR) -> 
