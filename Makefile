@@ -1,4 +1,4 @@
-.PHONY: default build-all fmt
+.PHONY: default build-all
 
 BUILD_DIR = build
 ELMJS = $(BUILD_DIR)/elm.js
@@ -14,6 +14,3 @@ $(ELMJS): $(ELM_FILES) | $(BUILD_DIR)
 
 $(BUILD_DIR):
 	mkdir -p $@
-
-fmt: $(ELM_FILES)
-	elm-format src/
