@@ -9,6 +9,7 @@ type Resource
   | Customers
   | Money
   | Fame
+  -- | Rats
 
 
 toLString : Resource -> LString
