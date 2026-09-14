@@ -7,9 +7,12 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Random
 -- Our imports
-import Localization exposing (..)
 import Game exposing (..)
 import Jrelm.List as JList
+import Jrelm.Html exposing (stylesheet)
+import Localization exposing (..)
+import View exposing (styles)
+import View.Game
 
 
 type alias Flags = ()
@@ -23,8 +26,7 @@ type ModelState
 type Msg
   = EmptyMsg
   | NewGame
-  | SetCardSelected Int Bool
-  | OptionClicked OptionIdx
+  | GameMsg View.Game.Msg
 
 
 main : Program Flags Model Msg
@@ -44,7 +46,7 @@ init _ = ( { local = Hebrew, modelState = Menu }, Cmd.none )
 view : Model -> Document Msg
 view model =
   { title =
-      lStringGet
+      lstringGet
         model.local
         { en = "Cat Cafe Game"
         , he = "בית קפה חתולים"
@@ -55,9 +57,22 @@ view model =
 
 body : Model -> List (Html Msg)
 body model =
-  case model.modelState of
+  (case model.modelState of
     Menu -> menu model
-    Game g -> game model g
+    Game g -> [View.Game.game g model.local |> Html.map GameMsg])
+  |> \l -> directionStyle model.local :: styles ++ l
+
+
+directionStyle : Local -> Html x
+directionStyle l =
+  case l of
+    English -> stylesheet ""
+    Hebrew ->
+      stylesheet """
+        :root {
+          direction: rtl;
+        }
+      """
 
 
 menu : Model -> List (Html Msg)
@@ -65,87 +80,10 @@ menu m =
   [ button
       [ onClick NewGame ]
       [ text
-        <| lStringGet m.local
+        <| lstringGet m.local
         <| { en = "New Game", he = "משחק חדש" }
       ]
   ]
-
-
-game : Model -> Game -> List (Html Msg)
-game model g =
-  [ event model (List.head g.events)
-  , div
-      [ style "height" "2px"
-      , style "background-color" "black"
-      ]
-      []
-  , div
-      [ style "display" "flex"
-      , style "flex-direction" "column"
-      , style "align-items" "center"
-      ]
-      (hand model g.hand)
-  ]
-
-
-hand : Model -> Hand -> List (Html Msg)
-hand m h = List.indexedMap (card m) h
-
-
-card : Model -> Int -> { card : Card, selected : Bool } -> Html Msg
-card m index c =
-  let f =
-        span [ onClick (SetCardSelected index (not c.selected)) ]
-        << if c.selected then List.singleton << b [] else (\x -> x)
-  in
-  case c.card of
-    Cat ->
-      f
-        [ text
-          <| lStringGet m.local
-          <| { en = "Kitty", he = "חתולי" }
-        ]
-    ResourceCard CatFood ->
-      f
-        [ text
-          <| lStringGet m.local
-          <| { en = "Cat Food", he = "אוכל חתולים" }
-        ]
-
-
-event : Model -> Maybe Event -> Html Msg
-event m maybe =
-  div
-    []
-  <| case maybe of
-      Nothing -> []
-      Just e ->
-        [ h3 [] [ text <| lStringGet m.local e.name ]
-        , div
-            [ style "display" "flex"
-            , style "flex-direction" "row"
-            , style "justify-content" "center"
-            ]
-            [ option m e.option1 |> Html.map (\_ -> OptionClicked Option1)
-            , option m e.option2 |> Html.map (\_ -> OptionClicked Option2)
-            , option m e.option3 |> Html.map (\_ -> OptionClicked Option3)
-            ]
-        ]
-
-
-type OptionMsg = Clicked
-option : Model -> Maybe Option -> Html OptionMsg
-option m maybeO =
-  div
-    [ style "border" "1x solid"
-    , style "border-radius" "6px"
-    , onClick Clicked
-    ]
-    <| case maybeO of
-        Nothing -> []
-        Just o ->
-            [ text <| lStringGet m.local o.text
-            ]
 
 
 type alias Update = Model -> ( Model, Cmd Msg )
@@ -154,8 +92,7 @@ update msg =
   case msg of
     EmptyMsg -> \model -> ( model, Cmd.none )
     NewGame -> newGame
-    SetCardSelected index v -> setCardSelected index v
-    OptionClicked index -> selectOption index
+    GameMsg m -> gameMsg m
 
 
 newGame : Update
@@ -165,40 +102,13 @@ newGame m =
   )
 
 
-setCardSelected : Int -> Bool -> Update
-setCardSelected index v m =
+gameMsg : View.Game.Msg -> Update
+gameMsg msg m =
   case m.modelState of
-    Menu -> ( m, Cmd.none ) -- TODO: Panic. This shouldn't happen.
     Game g ->
-      ( { m
-        | modelState = 
-            Game
-              { g
-              | hand =
-                  JList.mapIndex index (\c -> { c | selected = v }) g.hand
-              }
-        }
-      , Cmd.none
-      )
-
-
-selectOption : OptionIdx -> Update
-selectOption index m =
-  (case m.modelState of
-    Game g ->
-      g
-      |> Game.selectOption index
-      |> Result.map (\newG ->
-          ( { m
-            | modelState = Game newG
-            }
-          , Cmd.none
-          ))
-    _ -> Err "no game")
-  |> \r -> -- TODO:
-    case r of
-      Err s -> ( m, Cmd.none )
-      Ok ret ->ret
+      View.Game.update msg g
+      |> \(gg, c) -> ({ m | modelState = Game gg }, Cmd.map GameMsg c)
+    _ -> ( m, Cmd.none ) -- TODO: Show an error
 
 
 subscriptions : Model -> Sub Msg

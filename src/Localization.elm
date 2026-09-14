@@ -12,8 +12,15 @@ type alias LString =
   }
 
 
-lStringGet : Local -> LString -> String
-lStringGet l =
+lstringGet : Local -> LString -> String
+lstringGet l =
   case l of
     English -> \s -> s.en
     Hebrew  -> \s -> s.he
+
+
+lstringEmpty : LString
+lstringEmpty = { en = "", he = "" }
+
+
+type alias WithLocal a = { a | local : Local }

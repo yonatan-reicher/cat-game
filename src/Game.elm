@@ -5,6 +5,7 @@ import Array exposing (Array)
 import Random
 -- My stuff
 import Localization exposing (..)
+import Jrelm.List as JList
 
 
 type alias Game =
@@ -75,7 +76,7 @@ type Consumes
 
 type Outcome
   = AddEvent EventId
-  | AddCard Card
+  | AddResource Resource
 
 
 allEvents : Array Event
@@ -99,7 +100,7 @@ allEvents =
         Just
           { text = { en = "Boop Scoop", he = "בופ סקופ" }
           , requirements = []
-          , outcomes = [ AddCard (ResourceCard CatFood) ]
+          , outcomes = [ AddResource CatFood ]
           , returns = True
           }
     , option3 = Nothing
@@ -128,7 +129,7 @@ getEventOrErr id = getEvent id |> Maybe.withDefault errorEvent
 newGame : Random.Seed -> Game
 newGame r =
   { hand = 
-      [ Cat, ResourceCard CatFood ]
+      [ Cat, ResourceCard CatFood, ResourceCard CatFood, ResourceCard CatFood ]
       |> List.map (\c -> { card = c, selected = False })
   , events = Array.toList allEvents
   , reshuffle = []
@@ -240,3 +241,13 @@ matchRequirement r c =
         ResourceCard otherResource -> resource == otherResource
         _ -> False
 
+
+resourceToLString : Resource -> LString
+resourceToLString r =
+  case r of
+    CatFood -> { en = "Cat Food", he = "אוכל חתולים" }
+
+
+setCardSelected : Int -> Bool -> Game -> Game
+setCardSelected i b g =
+  { g | hand = JList.mapIndex i (\c -> { c | selected = b }) g.hand }
