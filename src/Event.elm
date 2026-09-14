@@ -3,6 +3,7 @@ module Event exposing (..)
 import Array exposing (Array)
 import Except exposing (Except)
 import Localization exposing (LString)
+import Outcome exposing (Outcome(..))
 import Requirement exposing (Requirement, Consumes(..))
 import Resource exposing (Resource(..))
 
@@ -39,11 +40,6 @@ type alias Option =
   }
 
 
-type Outcome
-  = AddEvent EventId
-  | AddResource Resource
-
-
 -- =============================================================================
 --                                  Event Table
 -- =============================================================================
@@ -70,7 +66,7 @@ all =
         Just
           { text = { en = "Boop Scoop", he = "בופ סקופ" }
           , requirements = []
-          , outcomes = [ AddResource CatFood ]
+          , outcomes = [ Outcome.AddResource CatFood ]
           , returns = True
           }
     , option3 = Nothing

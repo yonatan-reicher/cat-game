@@ -1,4 +1,10 @@
-module Game exposing (..)
+module Game exposing
+  ( Game
+  , Hand
+  , newGame
+  , selectOption
+  , setCardSelected
+  )
 
 -- Elm stuff
 import Array exposing (Array)
@@ -12,6 +18,7 @@ import Jrelm.List as JList
 import Localization exposing (..)
 import Resource exposing (Resource(..))
 import Requirement exposing (Requirement, Consumes(..))
+import Outcome exposing (Outcome(..))
 
 
 type alias Game =
@@ -30,7 +37,7 @@ newGame r =
   { hand = 
       [ Card.Cat, Card.Resource CatFood, Card.Resource CatFood, Card.Resource CatFood ]
       |> List.map (\c -> { card = c, selected = False })
-  , events = Array.toList Event.all
+  , events = Array.toList Event.all |> List.filter (\e -> e /= Event.err)
   , reshuffle = []
   , randomSeed = r
   }
@@ -91,9 +98,49 @@ selectOption i g =
     case Requirement.matchAll g.hand option.requirements of
       Requirement.MatchAll cards -> Ok (option, cards)
       Requirement.NoMatchAll -> Except.str "requirements do not match")
-  |> Result.map (\(option, cards) ->
-      -- TODO: Outcomes
-      { g | hand = cards })
+  |> Result.andThen (\(option, cards) -> 
+    case g.events of
+      event :: _ -> Ok (option, cards, event)
+      _ -> Except.str "there was supposed to be an event here")
+  |> Result.andThen (\(option, cards, event) ->
+      { g | hand = cards }
+      |> applyAllOutcomes option.outcomes
+      |> popEvent
+      |> if option.returns then Result.map (addEvent event) else (\x -> x))
+  |> Except.at "selectOption"
+
+
+applyAllOutcomes : List Outcome -> Game -> Game
+applyAllOutcomes os g =
+  List.foldl applyOutcome g os
+
+
+applyOutcome : Outcome -> Game -> Game
+applyOutcome o g =
+  case o of
+    AddEvent e -> addEvent (Event.fromIdOrErr e) g
+    AddResource r -> addCard (Card.Resource r) g
+
+
+addCard : Card -> Game -> Game
+addCard c g =
+  { g | hand = { card = c, selected = False } :: g.hand }
+
+
+addEvent : Event -> Game -> Game
+addEvent e g =
+  { g | reshuffle = e :: g.reshuffle }
+
+
+popEvent : Game -> Except Game
+popEvent g =
+  case g.events of
+    [] -> Except.str "event deck is empty"
+    e :: es ->
+      { g | events = es }
+      |> (if List.isEmpty es then reshuffle else (\x -> x))
+      |> Ok
+
 
 
 setCardSelected : Int -> Bool -> Game -> Game

@@ -6,13 +6,14 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 -- Our
 import Card exposing (Card)
-import Event exposing (Event, Option, OptionIdx(..), Outcome(..))
+import Event exposing (Event, Option, OptionIdx(..))
 import Except exposing (Except)
 import Game exposing (..)
 import LHtml exposing (..)
 import Localization exposing (..)
-import Resource
+import Outcome exposing (Outcome(..))
 import Requirement exposing (Requirement, MatchAll(..))
+import Resource
 import View.Theme exposing (cardSize)
 
 
