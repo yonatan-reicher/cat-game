@@ -4,17 +4,20 @@ module Game exposing (..)
 import Array exposing (Array)
 import Random
 -- My stuff
+import Card exposing (Card)
+import Event exposing (Event, Option, OptionIdx(..))
 import Except exposing (Except, okOrStr)
 import Exception exposing (Exception)
 import Jrelm.List as JList
 import Localization exposing (..)
 import Resource exposing (Resource(..))
+import Requirement exposing (Requirement, Consumes(..))
 
 
 type alias Game =
   { hand : Hand
-  , events : EventDeck
-  , reshuffle : EventDeck -- These are events that will be reshuffled.
+  , events : List Event
+  , reshuffle : List Event -- These are events that will be reshuffled.
   , randomSeed : Random.Seed
   }
 
@@ -22,115 +25,12 @@ type alias Game =
 type alias Hand = List { card : Card, selected : Bool }
 
 
-type Card
-  = Cat
-  | ResourceCard Resource
-
-
-type alias EventDeck = List Event
-
-
-type alias Event =
-  { id : EventId
-  , name : LString
-  , option1 : Maybe Option
-  , option2 : Maybe Option
-  , option3 : Maybe Option
-  }
-
-
-type alias EventId = Int
-
-
-type OptionIdx
-  = Option1
-  | Option2
-  | Option3
-
-
--- A way to react to an event.
-type alias Option =
-  { text : LString
-  , requirements : List Requirement
-  , outcomes : List Outcome
-  , returns : Bool -- Does this event get reshuffled, or is it discarded?
-  }
-
-
-type alias Requirement =
-  { kind : RequirementKind
-  , consumes : Consumes
-  }
-
-
-type RequirementKind
-  = CatRequirement
-  | ResourceRequirement Resource
-
-
-type Consumes
-  = Consumes
-  | DoesntConsume
-
-
-type Outcome
-  = AddEvent EventId
-  | AddResource Resource
-
-
-allEvents : Array Event
-allEvents =
-  [ { id = 1
-    , name = { en = "Hungry Cats", he = "חתולים רעבים" }
-    , option1 = Nothing
-    , option2 =
-        Just
-          { text = { en = "Feed the beasts", he = "האכילי את החיות" }
-          , requirements = [ Requirement (ResourceRequirement CatFood) Consumes ]
-          , outcomes = []
-          , returns = True
-          }
-    , option3 = Nothing
-    }
-  , { id = 2
-    , name = { en = "Time Passes", he = "הזמן עובר" }
-    , option1 = Nothing
-    , option2 =
-        Just
-          { text = { en = "Boop Scoop", he = "בופ סקופ" }
-          , requirements = []
-          , outcomes = [ AddResource CatFood ]
-          , returns = True
-          }
-    , option3 = Nothing
-    }
-  , errorEvent
-  ]
-  |> Array.fromList
-
-
-errorEvent : Event
-errorEvent =
-  { id = -1
-  , name = { en = "Error", he = "שגיאה" }
-  , option1 = Nothing
-  , option2 = Nothing
-  , option3 = Nothing
-  }
-
-
-getEvent : EventId -> Maybe Event
-getEvent id = Array.get id allEvents
-getEventOrErr : EventId -> Event
-getEventOrErr id = getEvent id |> Maybe.withDefault errorEvent
-
-
 newGame : Random.Seed -> Game
 newGame r =
   { hand = 
-      [ Cat, ResourceCard CatFood, ResourceCard CatFood, ResourceCard CatFood ]
+      [ Card.Cat, Card.Resource CatFood, Card.Resource CatFood, Card.Resource CatFood ]
       |> List.map (\c -> { card = c, selected = False })
-  , events = Array.toList allEvents
+  , events = Array.toList Event.all
   , reshuffle = []
   , randomSeed = r
   }
@@ -224,21 +124,11 @@ findMatchingRequirement rs c =
   case rs of
     [] -> (Nothing, rs)
     head :: tail ->
-      if matchRequirement head c
+      if Requirement.match c head
       then (Just head, tail)
       else
         findMatchingRequirement tail c
         |> \(r, rest) -> (r, head :: rest)
-
-
-matchRequirement : Requirement -> Card -> Bool
-matchRequirement r c =
-  case r.kind of
-    CatRequirement -> c == Cat
-    ResourceRequirement resource ->
-      case c of
-        ResourceCard otherResource -> resource == otherResource
-        _ -> False
 
 
 setCardSelected : Int -> Bool -> Game -> Game

@@ -5,11 +5,14 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 -- Our
+import Card exposing (Card)
+import Event exposing (Event, Option, OptionIdx(..), Outcome(..))
 import Except exposing (Except)
 import Game exposing (..)
 import LHtml exposing (..)
 import Localization exposing (..)
 import Resource
+import Requirement exposing (Requirement)
 import View.Theme exposing (cardSize)
 
 
@@ -124,8 +127,8 @@ requirements rs l = span [] (List.map (\r -> requirement r l) rs)
 requirement : Requirement -> LHtml x
 requirement r =
   case r.kind of
-    CatRequirement -> ltext { en = "Cat", he = "חתול" }
-    ResourceRequirement re -> ltext <| Resource.toLString re
+    Requirement.Cat -> ltext { en = "Cat", he = "חתול" }
+    Requirement.Resource re -> ltext <| Resource.toLString re
 
 
 outcomes : List Outcome -> LHtml x
@@ -136,7 +139,7 @@ outcome : Outcome -> LHtml x
 outcome o l =
   case o of
     AddEvent id ->
-      let e = getEventOrErr id in
+      let e = Event.fromIdOrErr id in
       span [] [ ltext e.name l ]
     AddResource r ->
       span [] [ ltext (Resource.toLString r) l ]
@@ -181,8 +184,8 @@ card c l =
     [ span
         []
         [ case c.card of
-            Cat -> ltext { en = "Cat", he = "חתול" } l
-            ResourceCard r -> ltext (Resource.toLString r) l
+            Card.Cat -> ltext { en = "Cat", he = "חתול" } l
+            Card.Resource r -> ltext (Resource.toLString r) l
         ]
     ]
 
