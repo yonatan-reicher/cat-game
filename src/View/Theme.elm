@@ -38,6 +38,7 @@ cardStyle : Html x
 cardStyle =
   """
   .card {
+    box-sizing: border-box;
     width: CARD_SIZE_X;
     height: CARD_SIZE_Y;
     border: 2px solid rgba(0,0,0,0.2);

@@ -7,9 +7,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Random
 -- Our imports
+import Exception exposing (Exception)
 import Game exposing (..)
-import Jrelm.List as JList
 import Jrelm.Html exposing (stylesheet)
+import LHtml exposing (LHtml, ltext)
 import Localization exposing (..)
 import View exposing (styles)
 import View.Game
@@ -19,6 +20,7 @@ type alias Flags = ()
 type alias Model =
   { local : Local
   , modelState : ModelState
+  , exceptions : List Exception
   }
 type ModelState
   = Menu
@@ -27,6 +29,7 @@ type Msg
   = EmptyMsg
   | NewGame
   | GameMsg View.Game.Msg
+  | DismissException
 
 
 main : Program Flags Model Msg
@@ -40,7 +43,7 @@ main =
 
 
 init : Flags -> ( Model, Cmd Msg )
-init _ = ( { local = Hebrew, modelState = Menu }, Cmd.none )
+init _ = ( { local = Hebrew, modelState = Menu, exceptions = [] }, Cmd.none )
 
 
 view : Model -> Document Msg
@@ -61,6 +64,9 @@ body model =
     Menu -> menu model
     Game g -> [View.Game.game g model.local |> Html.map GameMsg])
   |> \l -> directionStyle model.local :: styles ++ l
+           ++ (case model.exceptions of
+                [] -> []
+                e :: _ -> [exception e model.local])
 
 
 directionStyle : Local -> Html x
@@ -86,6 +92,48 @@ menu m =
   ]
 
 
+exception : Exception -> LHtml Msg
+exception e l =
+  div
+    [ style "position" "fixed"
+    , style "top" "0"
+    , style "right" "0"
+    , style "width" "100%"
+    , style "height" "100%"
+    , style "background-color" "rgba(0,0,0,0.7)"
+    , style "box-sizing" "border-box"
+    , style "padding" "30%"
+    , style "font-family" "monospace"
+    ]
+    [ div
+        [ class "card"
+        , style "width" "100%"
+        , style "width" "100%"
+        , style "background-color" "white"
+        , style "padding" "16px"
+        , style "display" "flex"
+        , style "flex-direction" "column"
+        ]
+        [ p
+            [ style "direction" "ltr"
+            , style "flex-grow" "1"
+            , style "margin-top" "0"
+            ]
+            [ text (Exception.toString e)
+            ]
+        , div
+            []
+            [ button
+                [ style "flex-grow" "0"
+                , onClick DismissException
+                ]
+                [ ltext { en = "Ok :(", he = "בסדר :(" } l
+                ]
+            ]
+        ]
+    ]
+
+
 type alias Update = Model -> ( Model, Cmd Msg )
 update : Msg -> Update
 update msg =
@@ -93,6 +141,7 @@ update msg =
     EmptyMsg -> \model -> ( model, Cmd.none )
     NewGame -> newGame
     GameMsg m -> gameMsg m
+    DismissException -> dismissException
 
 
 newGame : Update
@@ -109,6 +158,11 @@ gameMsg msg m =
       View.Game.update msg g
       |> \(gg, c) -> ({ m | modelState = Game gg }, Cmd.map GameMsg c)
     _ -> ( m, Cmd.none ) -- TODO: Show an error
+
+
+dismissException : Update
+dismissException m =
+  ( { m | exceptions = List.tail m.exceptions |> Maybe.withDefault [] }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
