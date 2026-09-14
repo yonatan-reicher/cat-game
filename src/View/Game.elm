@@ -29,9 +29,16 @@ type OptionMsg = OptionClickedOptionMsg
 game : Game -> LHtml Msg
 game g l =
   div
-    [ style "height" "100vh" ]
+    [ style "height" "100vh"
+    , style "display" "flex"
+    , style "flex-direction" "column"
+    ]
     [ maybeEvent g.hand (List.head g.events) l
-    , hr [] []
+    , hr
+        [ style "box-sizing" "border-box"
+        , style "width" "100%"
+        ]
+        []
     , hand g.hand l
     ]
 
@@ -39,7 +46,7 @@ game g l =
 maybeEvent : Hand -> Maybe Event -> LHtml Msg
 maybeEvent h m =
   case m of
-    Nothing -> ltext lstringEmpty
+    Nothing -> \_ -> text "Error: This shouldnt happen" -- TODO: Make the list in the game non empty
     Just e -> event h e
 
 
@@ -163,8 +170,8 @@ hand : Hand -> LHtml Msg
 hand h l =
   div
     [ style "position" "relative"
-    , style "width" <| String.fromInt handWidth ++ "px"
-    , style "height" <| String.fromInt handHeight ++ "px"
+    , style "width" <| String.fromInt handWidth ++ "vw"
+    , style "flex-grow" "1"
     , style "margin-left" "auto"
     , style "margin-right" "auto"
     ]
@@ -176,7 +183,11 @@ handCard i handSize c l =
   div
     [ style "position" "absolute"
     , style "transform"
-      <| "translateX(-" ++ String.fromFloat (toFloat (i * (handWidth - cardSize.x)) / toFloat (handSize - 1)) ++ "px)"
+      <| ("translateX(calc(-I * (HWvw - CSXpx) / (HS - 1)))"
+          |> String.replace "I" (String.fromInt i)
+          |> String.replace "HW" (String.fromInt handWidth)
+          |> String.replace "CSX" (String.fromInt cardSize.x)
+          |> String.replace "HS" (String.fromInt handSize))
       ++ " rotate(" ++ String.fromFloat (((toFloat i + 0.5) / toFloat handSize - 0.5) * -30) ++ "deg)"
     ]
     [ card c l
@@ -205,9 +216,7 @@ card c l =
 
 
 handWidth : Int
-handWidth = 512
-handHeight : Int
-handHeight = handWidth * 2 // 3
+handWidth = 80
 
 
 update : Msg -> Game -> Except ( Game, Cmd Msg )
