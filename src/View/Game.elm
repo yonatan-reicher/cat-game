@@ -29,7 +29,7 @@ type OptionMsg = OptionClickedOptionMsg
 game : Game -> LHtml Msg
 game g l =
   div
-    []
+    [ style "height" "100vh" ]
     [ maybeEvent g.hand (List.head g.events) l
     , hr [] []
     , hand g.hand l
@@ -46,7 +46,8 @@ maybeEvent h m =
 event : Hand -> Event -> LHtml Msg
 event h e l =
   div
-    []
+    [ style "margin" "64px"
+    ]
     [ div
         [ class "card"
         , style "margin-left" "auto"
