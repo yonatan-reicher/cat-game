@@ -1,4 +1,4 @@
-.PHONY: default build-all
+.PHONY: default build-all test
 
 BUILD_DIR = build
 ELMJS = $(BUILD_DIR)/elm.js
@@ -14,3 +14,6 @@ $(ELMJS): $(ELM_FILES) | $(BUILD_DIR)
 
 $(BUILD_DIR):
 	mkdir -p $@
+
+test: $(ELM_FILES)
+	elm-test
