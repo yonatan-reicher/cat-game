@@ -2,7 +2,7 @@
 
 BUILD_DIR = build
 ELMJS = $(BUILD_DIR)/elm.js
-ELM_FILES = $(wildcard src/*.elm)
+ELM_FILES = $(wildcard src/*.elm src/*/*.elm)
 ELM_MAIN = src/Main.elm
 
 default: build-all
