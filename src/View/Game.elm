@@ -12,7 +12,7 @@ import Game exposing (..)
 import LHtml exposing (..)
 import Localization exposing (..)
 import Resource
-import Requirement exposing (Requirement)
+import Requirement exposing (Requirement, MatchAll(..))
 import View.Theme exposing (cardSize)
 
 
@@ -29,21 +29,21 @@ game : Game -> LHtml Msg
 game g l =
   div
     []
-    [ maybeEvent (List.head g.events) l
+    [ maybeEvent g.hand (List.head g.events) l
     , hr [] []
     , hand g.hand l
     ]
 
 
-maybeEvent : Maybe Event -> LHtml Msg
-maybeEvent m =
+maybeEvent : Hand -> Maybe Event -> LHtml Msg
+maybeEvent h m =
   case m of
     Nothing -> ltext lstringEmpty
-    Just e -> event e
+    Just e -> event h e
 
 
-event : Event -> LHtml Msg
-event e l =
+event : Hand -> Event -> LHtml Msg
+event h e l =
   div
     []
     [ div
@@ -63,17 +63,21 @@ event e l =
         , style "gap" "8px"
         , style "margin-top" "8px"
         ]
-        [ maybeOption e.option1 l |> Html.map (\_ -> OptionClicked Option1)
-        , maybeOption e.option2 l |> Html.map (\_ -> OptionClicked Option2)
-        , maybeOption e.option3 l |> Html.map (\_ -> OptionClicked Option3)
+        [ maybeOption h e.option1 l |> Html.map (\_ -> OptionClicked Option1)
+        , maybeOption h e.option2 l |> Html.map (\_ -> OptionClicked Option2)
+        , maybeOption h e.option3 l |> Html.map (\_ -> OptionClicked Option3)
         ]
     ]
 
 
-maybeOption : Maybe Option -> LHtml OptionMsg
-maybeOption m =
+maybeOption : Hand -> Maybe Option -> LHtml OptionMsg
+maybeOption h m =
   case m of
-    Just o -> optionHelper o NotDim
+    Just o ->
+      optionHelper o
+      <| case Requirement.matchAll h o.requirements of
+          MatchAll _ -> NoDim
+          NoMatchAll -> Dim DimWeak
     Nothing ->
       optionHelper
         { text = lstringEmpty
@@ -81,11 +85,16 @@ maybeOption m =
         , outcomes = []
         , returns = False
         }
-        Dim
+        (Dim DimStrong)
 
 
-type DimOrNot = Dim | NotDim
-optionHelper : Option -> DimOrNot -> LHtml OptionMsg
+type Dim
+  = Dim DimStrength
+  | NoDim
+type DimStrength
+  = DimStrong
+  | DimWeak
+optionHelper : Option -> Dim -> LHtml OptionMsg
 optionHelper o dim l =
   div
     [ style "position" "relative" ]
@@ -105,13 +114,16 @@ optionHelper o dim l =
         , outcomes o.outcomes l
         ]
     , case dim of
-        NotDim -> text ""
-        Dim ->
+        NoDim -> text ""
+        Dim strength ->
           div
             [ class "card"
             , style "background" "black"
             , style "border-color" "black"
-            , style "opacity" "0.3"
+            , style "opacity"
+              <| case strength of
+                  DimStrong -> "0.3"
+                  DimWeak -> "0.1"
             , style "position" "absolute"
             , style "top" "0"
             , style "left" "0"

@@ -10,3 +10,10 @@ mapIndex idx f l =
         0 -> f head :: tail
         _ -> head :: mapIndex (idx - 1) f tail
 
+
+dropIndex : Int -> List a -> List a
+dropIndex i l =
+  case (l, i) of
+    ([], _) -> l
+    (_ :: tail, 0) -> tail
+    (head :: tail, _) -> head :: dropIndex (i - 1) tail
