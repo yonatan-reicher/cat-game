@@ -9,6 +9,7 @@ import Except exposing (Except)
 import Game exposing (..)
 import LHtml exposing (..)
 import Localization exposing (..)
+import Resource
 import View.Theme exposing (cardSize)
 
 
@@ -124,7 +125,7 @@ requirement : Requirement -> LHtml x
 requirement r =
   case r.kind of
     CatRequirement -> ltext { en = "Cat", he = "חתול" }
-    ResourceRequirement re -> ltext <| resourceToLString re
+    ResourceRequirement re -> ltext <| Resource.toLString re
 
 
 outcomes : List Outcome -> LHtml x
@@ -138,7 +139,7 @@ outcome o l =
       let e = getEventOrErr id in
       span [] [ ltext e.name l ]
     AddResource r ->
-      span [] [ ltext (resourceToLString r) l ]
+      span [] [ ltext (Resource.toLString r) l ]
 
 
 hand : Hand -> LHtml Msg
@@ -181,7 +182,7 @@ card c l =
         []
         [ case c.card of
             Cat -> ltext { en = "Cat", he = "חתול" } l
-            ResourceCard r -> ltext (resourceToLString r) l
+            ResourceCard r -> ltext (Resource.toLString r) l
         ]
     ]
 

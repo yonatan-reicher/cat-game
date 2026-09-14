@@ -4,10 +4,11 @@ module Game exposing (..)
 import Array exposing (Array)
 import Random
 -- My stuff
-import Exception exposing (Exception)
 import Except exposing (Except, okOrStr)
-import Localization exposing (..)
+import Exception exposing (Exception)
 import Jrelm.List as JList
+import Localization exposing (..)
+import Resource exposing (Resource(..))
 
 
 type alias Game =
@@ -24,10 +25,6 @@ type alias Hand = List { card : Card, selected : Bool }
 type Card
   = Cat
   | ResourceCard Resource
-
-
-type Resource
-  = CatFood
 
 
 type alias EventDeck = List Event
@@ -242,12 +239,6 @@ matchRequirement r c =
       case c of
         ResourceCard otherResource -> resource == otherResource
         _ -> False
-
-
-resourceToLString : Resource -> LString
-resourceToLString r =
-  case r of
-    CatFood -> { en = "Cat Food", he = "אוכל חתולים" }
 
 
 setCardSelected : Int -> Bool -> Game -> Game
