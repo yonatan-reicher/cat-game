@@ -35,7 +35,19 @@ type alias Hand = List { card : Card, selected : Bool }
 newGame : Random.Seed -> Game
 newGame r =
   { hand = 
-      [ Card.Cat, Card.Resource CatFood, Card.Resource CatFood, Card.Resource CatFood ]
+      [ Card.Cat
+      , Card.Cat
+      , Card.Resource CatFood
+      , Card.Resource CatFood
+      , Card.Resource Workers
+      , Card.Resource Workers
+      , Card.Resource Customers
+      , Card.Resource Customers
+      , Card.Resource Fame
+      , Card.Resource Fame
+      , Card.Resource Money
+      , Card.Resource Money
+      ]
       |> List.map (\c -> { card = c, selected = False })
   , events = Array.toList Event.all |> List.filter (\e -> e /= Event.err)
   , reshuffle = []
