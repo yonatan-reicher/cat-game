@@ -1,6 +1,25 @@
 module Jrelm.List exposing (..)
 
 
+get : Int -> List a -> Maybe a
+get i l =
+  case l of
+    [] -> Nothing
+    h :: t -> if i == 0 then Just h else get (i - 1) t
+
+
+flatten : List (List a) -> List a
+flatten = List.concat
+
+
+flatMap : (a -> List b) -> List a -> List b
+flatMap = List.concatMap
+
+
+zip : List a -> List b -> List (a, b)
+zip = List.map id
+
+
 mapIndex : Int -> (a -> a) -> List a -> List a
 mapIndex idx f l =
   case l of
