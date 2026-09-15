@@ -24,7 +24,7 @@ import Array exposing (Array)
       + f"{lang} : Array String\n"
       + f"{lang} =\n"
       + f"  Array.fromList\n"
-      + f"    [ {'\n    , '.join(f'"{n}"' for n in names)}\n"
+      + f"    [ {'\n    , '.join('"' + str(n) + '"' for n in names)}\n"
       + f"    ]"
       for lang, names in d.items()
 )}
