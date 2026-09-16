@@ -36,3 +36,7 @@ dropIndex i l =
     ([], _) -> l
     (_ :: tail, 0) -> tail
     (head :: tail, _) -> head :: dropIndex (i - 1) tail
+
+
+composeAll : List (a -> a) -> (a -> a)
+composeAll = List.foldl (\f g -> g << f) identity
