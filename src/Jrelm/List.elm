@@ -17,7 +17,7 @@ flatMap = List.concatMap
 
 
 zip : List a -> List b -> List (a, b)
-zip = List.map id
+zip = List.map2 (\x y -> (x, y))
 
 
 mapIndex : Int -> (a -> a) -> List a -> List a

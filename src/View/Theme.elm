@@ -1,6 +1,8 @@
 module View.Theme exposing
   ( cardSize
   , cardStyle
+  , backgroundColor
+  , saturatedColor
   )
 
 -- Elm
@@ -55,4 +57,12 @@ cardStyle =
   |> String.replace "CARD_SIZE_X" (String.fromInt cardSize.x ++ "px")
   |> String.replace "CARD_SIZE_Y" (String.fromInt cardSize.y ++ "px")
   |> stylesheet
+
+
+backgroundColor : String
+backgroundColor = "#ffdd80"
+
+
+saturatedColor : String
+saturatedColor = "#ffcd44"
 

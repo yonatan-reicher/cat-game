@@ -7,12 +7,13 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Random
 -- Our imports
+import Except
 import Exception exposing (Exception)
-import Except exposing (Except)
 import Game exposing (..)
 import Jrelm.Html exposing (stylesheet)
 import LHtml exposing (LHtml, ltext)
 import Localization exposing (..)
+import MainMenu as Menu
 import View exposing (styles)
 import View.Game
 
@@ -24,12 +25,12 @@ type alias Model =
   , exceptions : List Exception
   }
 type ModelState
-  = Menu
+  = Menu Menu.Model
   | Game Game
 type Msg
   = EmptyMsg
-  | NewGame
   | GameMsg View.Game.Msg
+  | MenuMsg Menu.Msg
   | DismissException
   | ThrowException Exception
 
@@ -45,7 +46,13 @@ main =
 
 
 init : Flags -> ( Model, Cmd Msg )
-init _ = ( { local = Hebrew, modelState = Menu, exceptions = [] }, Cmd.none )
+init _ =
+  ( { local = Hebrew
+    , modelState = Menu Menu.init
+    , exceptions = []
+    }
+  , Cmd.none
+  )
 
 
 view : Model -> Document Msg
@@ -63,7 +70,7 @@ view model =
 body : Model -> List (Html Msg)
 body model =
   (case model.modelState of
-    Menu -> menu model
+    Menu men -> [Menu.view men model.local |> Html.map MenuMsg]
     Game g -> [View.Game.game g model.local |> Html.map GameMsg])
   |> \l -> directionStyle model.local :: styles ++ l
            ++ (case model.exceptions of
@@ -81,17 +88,6 @@ directionStyle l =
           direction: rtl;
         }
       """
-
-
-menu : Model -> List (Html Msg)
-menu m =
-  [ button
-      [ onClick NewGame ]
-      [ text
-        <| lstringGet m.local
-        <| { en = "New Game", he = "משחק חדש" }
-      ]
-  ]
 
 
 exception : Exception -> LHtml Msg
@@ -141,7 +137,7 @@ update : Msg -> Update
 update msg =
   case msg of
     EmptyMsg -> \model -> ( model, Cmd.none )
-    NewGame -> newGame
+    MenuMsg m -> menuMsg m
     GameMsg m -> gameMsg m
     DismissException -> dismissException
     ThrowException e -> throwException e
@@ -163,6 +159,22 @@ gameMsg msg m =
       |> Except.catch (\e -> throwException e m)
     _ ->
       throwException (Exception.Str "got a game msg when not in a game state") m
+
+
+menuMsg : Menu.Msg -> Update
+menuMsg msg mod =
+  case mod.modelState of
+    Menu men ->
+      case Menu.update msg men of
+        Menu.AnotherMenu newMen c ->
+          ( { mod | modelState = Menu newMen }
+          , Cmd.map MenuMsg c
+          )
+        Menu.NewGame -> newGame mod
+    _ ->
+      throwException
+        (Exception.Str "got a menu msg when not in a menu state")
+        mod
 
 
 dismissException : Update
