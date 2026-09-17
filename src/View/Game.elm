@@ -14,7 +14,7 @@ import Localization exposing (..)
 import Outcome exposing (Outcome(..))
 import Requirement exposing (Requirement, MatchAll(..))
 import Resource
-import View.Theme exposing (cardSize)
+import Components.Card exposing (cardSize)
 
 
 type Msg

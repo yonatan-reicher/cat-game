@@ -1,4 +1,4 @@
-module View.Theme exposing
+module Components.Card exposing
   ( cardSize
   , cardStyle
   )
