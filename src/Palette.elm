@@ -29,7 +29,6 @@ module Palette exposing
   , catSkinShadowStr
   )
 
-import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Jrelm.Rgb as Rgb exposing (Rgb)
