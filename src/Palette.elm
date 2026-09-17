@@ -36,7 +36,8 @@ import Jrelm.Rgb as Rgb exposing (Rgb)
 
 
 card = Rgb 238 150 73
-back = Rgb 253 208 144
+-- back = Rgb 253 208 144
+back = Rgb 249 194 125
 backStrong = Rgb 246 179 109
 backDark = Rgb 218 186 125
 green = Rgb 113 119 68
