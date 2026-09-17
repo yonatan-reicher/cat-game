@@ -1,8 +1,6 @@
 module View.Theme exposing
   ( cardSize
   , cardStyle
-  , backgroundColor
-  , saturatedColor
   )
 
 -- Elm
@@ -10,6 +8,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 -- Our
 import Jrelm.Html exposing (stylesheet)
+import Jrelm.Rgb as Rgb
+import Palette as Pal
 
 
 -- There is no standard playing-card size, so we use Bicycle's sizes.
@@ -41,28 +41,37 @@ cardStyle =
   """
   .card {
     box-sizing: border-box;
-    width: CARD_SIZE_X;
-    height: CARD_SIZE_Y;
-    border: 2px solid rgba(0,0,0,0.2);
+    width: calc(CARD_SIZE_X - 2px);
+    height: calc(CARD_SIZE_Y - 2px);
+    background: none;
+    border: 2px solid BORDER_COLOR;
     border-radius: 16px;
     padding: 8px;
     overflow: clip;
     transition: transform 0.1s ease-in-out;
+    position: relative;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    width: CARD_SIZE_X;
+    height: CARD_SIZE_Y;
+    background: BACKGROUND;
+    z-index: -1;
   }
 
   .card.pops:hover {
     transform: translateY(-16px);
   }
   """
+  |> String.replace "BACKGROUND" (Rgb.toString Pal.card)
   |> String.replace "CARD_SIZE_X" (String.fromInt cardSize.x ++ "px")
   |> String.replace "CARD_SIZE_Y" (String.fromInt cardSize.y ++ "px")
+  |> String.replace "BORDER_COLOR" Pal.greenStr
   |> stylesheet
 
-
-backgroundColor : String
-backgroundColor = "#ffdd80"
-
-
-saturatedColor : String
-saturatedColor = "#ffcd44"
 
