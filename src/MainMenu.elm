@@ -15,7 +15,7 @@ import Html.Events exposing (..)
 -- Our
 import LHtml exposing (LHtml, ltext)
 import Localization exposing (Local, LString)
-import View.Theme exposing (backgroundColor)
+import Palette as Pal
 
 
 -- =============================================================================
@@ -59,7 +59,7 @@ view m l =
   div
     [ style "width" "100%"
     , style "height" "100%"
-    , style "background" backgroundColor
+    , style "background" Pal.backStr
     , style "padding" "0 30%"
     , style "box-sizing" "border-box"
     , style "overflow" "hidden" -- disables margin collapse
@@ -67,6 +67,15 @@ view m l =
     ]
     [ h1
         [ style "text-align" "center"
+        , style "text-shadow" <|
+            "0.5px 0.5px " ++ Pal.catWhiteShadowStr
+            ++ ", 1.5px 1.5px " ++ Pal.catWhiteShadowStr
+            ++ ", 2.0px 2.0px " ++ Pal.catWhiteShadowStr
+            ++ ", 2.5px 2.5px " ++ Pal.catWhiteShadowStr
+            ++ ", 3.0px 3.0px " ++ Pal.catWhiteShadowStr
+            ++ ", 3.5px 3.5px " ++ Pal.catWhiteShadowStr
+            ++ ", 4.0px 4.0px " ++ Pal.catWhiteShadowStr
+            ++ ", 4.5px 4.5px " ++ Pal.catWhiteShadowStr
         ]
         [ ltext { en = "Cat Cafe", he = "קפה חתולים" } l
         ]
