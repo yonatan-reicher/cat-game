@@ -11,9 +11,11 @@ import Except
 import Exception exposing (Exception)
 import Game exposing (..)
 import Jrelm.Html exposing (stylesheet)
+import Jrelm.Rgb as Rgb
 import LHtml exposing (LHtml, ltext)
 import Localization exposing (..)
 import MainMenu as Menu
+import Palette as Pal
 import View exposing (styles)
 import View.Game
 
@@ -72,10 +74,35 @@ body model =
   (case model.modelState of
     Menu men -> [Menu.view men model.local |> Html.map MenuMsg]
     Game g -> [View.Game.game g model.local |> Html.map GameMsg])
-  |> \l -> directionStyle model.local :: styles ++ l
+  |> \l -> directionStyle model.local :: epicStylesheet :: styles ++ l
            ++ (case model.exceptions of
                 [] -> []
                 e :: _ -> [exception e model.local])
+
+
+epicStylesheet : Html x
+epicStylesheet =
+  """
+    :root {
+        background: BACKGROUND;
+        color: COLOR;
+        font-family: "Playpen Sans Hebrew", cursive;
+        font-optical-sizing: auto;
+        font-weight: <weight>;
+        font-style: normal;
+    }
+
+    body {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+    }
+  """
+  |> String.replace "BACKGROUND" (Rgb.toString Pal.back)
+  |> String.replace "COLOR" (Rgb.toString Pal.catWhite)
+  |> stylesheet
 
 
 directionStyle : Local -> Html x
