@@ -55,9 +55,8 @@ event h e l =
   div
     [ style "margin" "64px"
     ]
-    [ div
-        [ class "card"
-        , style "margin-left" "auto"
+    [ Components.Card.card { pops = False }
+        [ style "margin-left" "auto"
         , style "margin-right" "auto"
         ]
         [ h2
@@ -107,10 +106,8 @@ optionHelper : Option -> Dim -> LHtml OptionMsg
 optionHelper o dim l =
   div
     [ style "position" "relative" ]
-    [ div
-        [ class "card"
-        , class "pops"
-        , style "position" "relative"
+    [ Components.Card.card { pops = True }
+        [ style "position" "relative"
         , onClick OptionClickedOptionMsg
         ]
         [ span
@@ -125,9 +122,8 @@ optionHelper o dim l =
     , case dim of
         NoDim -> text ""
         Dim strength ->
-          div
-            [ class "card"
-            , style "background" "black"
+          Components.Card.card { pops = False }
+            [ style "background" "black"
             , style "border-color" "black"
             , style "opacity"
               <| case strength of
@@ -198,10 +194,8 @@ handCard i handSize c l =
 type CardMsg = CardClickedCardMsg
 card : { card : Card, selected : Bool } -> LHtml CardMsg
 card c l =
-  div
-    [ class "card"
-    , class "pops"
-    , if c.selected
+  Components.Card.card { pops = True }
+    [ if c.selected
       then style "transform" "translateY(-16px)"
       else attribute "a" "a"
     , onClick CardClickedCardMsg

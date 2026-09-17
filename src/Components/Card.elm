@@ -1,6 +1,7 @@
 module Components.Card exposing
   ( cardSize
-  , cardStyle
+  , card
+  , cardStylesheet
   )
 
 -- Elm
@@ -36,15 +37,22 @@ cardSize =
   }
 
 
-cardStyle : Html x
-cardStyle =
+card : { pops : Bool } -> List (Attribute msg) -> List (Html msg) -> Html msg
+card { pops } attributes children =
+  div
+    ( class "card" :: class (if pops then "pops" else "") :: attributes )
+    children
+
+
+cardStylesheet : Html x
+cardStylesheet =
   """
   .card {
     box-sizing: border-box;
-    width: calc(CARD_SIZE_X - 2px);
-    height: calc(CARD_SIZE_Y - 2px);
-    background: none;
-    border: 2px solid BORDER_COLOR;
+    width: CARD_SIZE_X;
+    height: CARD_SIZE_Y;
+    background: BACKGROUND;
+    border: none;
     border-radius: 16px;
     padding: 8px;
     overflow: clip;
@@ -52,16 +60,16 @@ cardStyle =
     position: relative;
   }
 
-  .card::after {
+  .card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
+    left: BORDER_GAP;
+    top: BORDER_GAP;
     box-sizing: border-box;
-    width: CARD_SIZE_X;
-    height: CARD_SIZE_Y;
-    background: BACKGROUND;
-    z-index: -1;
+    border: 1.5px solid BORDER_COLOR;
+    border-radius: calc(16px - BORDER_GAP);
+    width: calc(100% - 2 * BORDER_GAP);
+    height: calc(100% - 2 * BORDER_GAP);
   }
 
   .card.pops:hover {
@@ -72,6 +80,7 @@ cardStyle =
   |> String.replace "CARD_SIZE_X" (String.fromInt cardSize.x ++ "px")
   |> String.replace "CARD_SIZE_Y" (String.fromInt cardSize.y ++ "px")
   |> String.replace "BORDER_COLOR" Pal.greenStr
+  |> String.replace "BORDER_GAP" "2px"
   |> stylesheet
 
 

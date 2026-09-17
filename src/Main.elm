@@ -16,7 +16,7 @@ import LHtml exposing (LHtml, ltext)
 import Localization exposing (..)
 import MainMenu as Menu
 import Palette as Pal
-import View exposing (styles)
+import Components.Card exposing (cardStylesheet)
 import View.Game
 
 
@@ -74,7 +74,7 @@ body model =
   (case model.modelState of
     Menu men -> [Menu.view men model.local |> Html.map MenuMsg]
     Game g -> [View.Game.game g model.local |> Html.map GameMsg])
-  |> \l -> directionStyle model.local :: epicStylesheet :: styles ++ l
+  |> \l -> directionStyle model.local :: epicStylesheet :: cardStylesheet :: l
            ++ (case model.exceptions of
                 [] -> []
                 e :: _ -> [exception e model.local])
@@ -130,9 +130,8 @@ exception e l =
     , style "padding" "30%"
     , style "font-family" "monospace"
     ]
-    [ div
-        [ class "card"
-        , style "width" "100%"
+    [ Components.Card.card { pops = False }
+        [ style "width" "100%"
         , style "width" "100%"
         , style "background-color" "white"
         , style "padding" "16px"
