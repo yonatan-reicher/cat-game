@@ -1,6 +1,8 @@
 module Palette exposing
   ( card
   , cardStr
+  , cardShadow
+  , cardShadowStr
   , back
   , backStr
   , backStrong
@@ -35,6 +37,7 @@ import Jrelm.Rgb as Rgb exposing (Rgb)
 
 
 card = Rgb 238 150 73
+cardShadow = Rgb 212 132 63
 -- back = Rgb 253 208 144
 back = Rgb 249 194 125
 backStrong = Rgb 246 179 109
@@ -53,6 +56,7 @@ catSkinShadow = Rgb 252 200 169
 
 
 cardStr = Rgb.toString card
+cardShadowStr = Rgb.toString cardShadow
 backStr = Rgb.toString back
 backStrongStr = Rgb.toString backStrong
 backDarkStr = Rgb.toString backDark
@@ -77,6 +81,7 @@ all =
   , ( "Shadow Cat Skin", catSkinShadow )
   --
   , ( "Card", card )
+  , ( "Card Shadow", cardShadow )
   , ( "Strong Back", backStrong )
   , ( "Back", back )
   , ( "Dark Back", backDark )

@@ -9,13 +9,13 @@ module MainMenu exposing
   )
 
 -- Elm
-import Html exposing (..)
+import Html exposing (div, h1)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 -- Our
 import LHtml exposing (LHtml, ltext)
 import Localization exposing (Local, LString)
 import Palette as Pal
+import Components.Button exposing (button)
 
 
 -- =============================================================================
@@ -80,11 +80,10 @@ view m l =
         [ ltext { en = "Cat Cafe", he = "קפה חתולים" } l
         ]
     , button
-        [ style "font" "inherit"
-        , onClick ClickNewGame
-        ]
-        [ ltext { en = "New Game", he = "משחק חדש" } l
-        ]
+        { onClick = ClickNewGame
+        , text = { en = "New Game", he = "משחק חדש" }
+        }
+        l
     ]
 
 

@@ -1,7 +1,7 @@
 module Components.Card exposing
   ( cardSize
   , card
-  , cardStylesheet
+  , style
   )
 
 -- Elm
@@ -44,8 +44,8 @@ card { pops } attributes children =
     children
 
 
-cardStylesheet : Html x
-cardStylesheet =
+style : Html x
+style =
   """
   .card {
     box-sizing: border-box;
@@ -66,7 +66,7 @@ cardStylesheet =
     left: BORDER_GAP;
     top: BORDER_GAP;
     box-sizing: border-box;
-    border: 1.5px solid BORDER_COLOR;
+    border: 7px double BORDER_COLOR;
     border-radius: calc(16px - BORDER_GAP);
     width: calc(100% - 2 * BORDER_GAP);
     height: calc(100% - 2 * BORDER_GAP);

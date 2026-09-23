@@ -16,7 +16,8 @@ import LHtml exposing (LHtml, ltext)
 import Localization exposing (..)
 import MainMenu as Menu
 import Palette as Pal
-import Components.Card exposing (cardStylesheet)
+import Components.Button
+import Components.Card
 import View.Game
 
 
@@ -74,15 +75,25 @@ body model =
   (case model.modelState of
     Menu men -> [Menu.view men model.local |> Html.map MenuMsg]
     Game g -> [View.Game.game g model.local |> Html.map GameMsg])
-  |> \l -> directionStyle model.local :: epicStylesheet :: cardStylesheet :: l
-           ++ (case model.exceptions of
-                [] -> []
-                e :: _ -> [exception e model.local])
+  |> \l ->
+      directionStyle model.local
+      :: epicStylesheet
+      :: Components.Button.style
+      :: Components.Card.style
+      :: l
+      ++ (case model.exceptions of
+            [] -> []
+            e :: _ -> [exception e model.local])
 
 
 epicStylesheet : Html x
 epicStylesheet =
   """
+    /* Colors */
+    :root {
+      --text-color: COLOR;
+    }
+
     :root {
         background: BACKGROUND;
         color: COLOR;
