@@ -6,15 +6,16 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 -- Our
 import Card exposing (Card)
+import Components.Card exposing (cardSize)
 import Event exposing (Event, Option, OptionIdx(..))
 import Except exposing (Except)
 import Game exposing (..)
 import LHtml exposing (..)
 import Localization exposing (..)
 import Outcome exposing (Outcome(..))
+import Palette as Pal
 import Requirement exposing (Requirement, MatchAll(..))
 import Resource
-import Components.Card exposing (cardSize)
 
 
 type Msg
@@ -138,18 +139,21 @@ optionHelper o dim l =
 
 
 requirements : List Requirement -> LHtml x
-requirements rs l = span [] (List.map (\r -> requirement r l) rs)
+requirements rs l = div [] (List.map (\r -> requirement r l) rs)
 
 
 requirement : Requirement -> LHtml x
-requirement r =
-  case r.kind of
-    Requirement.Cat -> ltext { en = "Cat", he = "חתול" }
-    Requirement.Resource re -> ltext <| Resource.toLString re
+requirement r l =
+  ( case r.kind of
+      Requirement.Cat -> ltext { en = "Cat", he = "חתול" } l
+      Requirement.Resource re -> ltext (Resource.toLString re) l
+  )
+  |> List.singleton
+  |> div []
 
 
 outcomes : List Outcome -> LHtml x
-outcomes os l = span [] (List.map (\o -> outcome o l) os)
+outcomes os l = div [] (List.map (\o -> outcome o l) os)
 
 
 outcome : Outcome -> LHtml x
@@ -157,9 +161,9 @@ outcome o l =
   case o of
     AddEvent id ->
       let e = Event.fromIdOrErr id in
-      span [] [ ltext e.name l ]
+      div [] [ ltext e.name l ]
     AddResource r ->
-      span [] [ ltext (Resource.toLString r) l ]
+      div [] [ ltext (Resource.toLString r) l ]
 
 
 hand : Hand -> LHtml Msg
@@ -170,6 +174,7 @@ hand h l =
     , style "flex-grow" "1"
     , style "margin-left" "auto"
     , style "margin-right" "auto"
+    , style "background" Pal.greenDarkStr
     ]
     (List.indexedMap (\i c -> handCard i (List.length h) c l) h)
 
