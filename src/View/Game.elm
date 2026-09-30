@@ -175,6 +175,8 @@ hand h l =
     , style "margin-left" "auto"
     , style "margin-right" "auto"
     , style "background" Pal.greenDarkStr
+    , style "border-radius" "32px 32px 0px 0px"
+    , style "padding" "64px"
     ]
     (List.indexedMap (\i c -> handCard i (List.length h) c l) h)
 
