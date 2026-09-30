@@ -5,3 +5,7 @@ import Html exposing (..)
 
 stylesheet : String -> Html x
 stylesheet t = node "style" [] [ text t ]
+
+
+empty : Html x
+empty = text ""
