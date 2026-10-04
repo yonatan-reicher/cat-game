@@ -70,6 +70,7 @@ style =
     border-radius: calc(16px - BORDER_GAP);
     width: calc(100% - 2 * BORDER_GAP);
     height: calc(100% - 2 * BORDER_GAP);
+    pointer-events: none;
   }
 
   .card.pops:hover {
