@@ -173,7 +173,6 @@ exception e l =
     [ Components.Card.card { pops = False }
         [ style "width" "100%"
         , style "width" "100%"
-        , style "background-color" "white"
         , style "padding" "16px"
         , style "display" "flex"
         , style "flex-direction" "column"
