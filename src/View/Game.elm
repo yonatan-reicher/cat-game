@@ -105,6 +105,8 @@ type DimStrength
   | DimWeak
 optionHelper : Option -> Dim -> LHtml OptionMsg
 optionHelper o dim l =
+  -- TODO: Instead of adding a thing on top of the card, just make it
+  -- unclickable and use css `filter: brightness`, that will look better
   div
     [ style "position" "relative" ]
     [ Components.Card.card { pops = True }
