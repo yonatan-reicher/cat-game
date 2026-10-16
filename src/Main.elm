@@ -170,7 +170,11 @@ exception e l =
     , style "padding" "30%"
     , style "font-family" "monospace"
     ]
-    [ Components.Card.card { pops = False }
+    [ Components.Card.card
+        { pops = False
+        , onClick = Nothing
+        , dim = 0.0
+        }
         [ style "width" "100%"
         , style "width" "100%"
         , style "padding" "16px"

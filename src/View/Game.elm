@@ -56,7 +56,11 @@ event h e l =
   div
     [ style "margin" "64px"
     ]
-    [ Components.Card.card { pops = False }
+    [ Components.Card.card
+        { pops = False
+        , onClick = Nothing
+        , dim = 0.0
+        }
         [ style "margin-left" "auto"
         , style "margin-right" "auto"
         ]
@@ -105,38 +109,25 @@ type DimStrength
   | DimWeak
 optionHelper : Option -> Dim -> LHtml OptionMsg
 optionHelper o dim l =
-  -- TODO: Instead of adding a thing on top of the card, just make it
-  -- unclickable and use css `filter: brightness`, that will look better
-  div
-    [ style "position" "relative" ]
-    [ Components.Card.card { pops = True }
-        [ style "position" "relative"
-        , onClick OptionClickedOptionMsg
+  Components.Card.card
+    { pops = dim == NoDim
+    , onClick = if dim == NoDim then Just OptionClickedOptionMsg else Nothing
+    , dim =
+        case dim of
+          Dim DimStrong -> 0.4
+          Dim DimWeak -> 0.2
+          NoDim -> 0.0
+    }
+    [ style "position" "relative"
+    ]
+    [ span
+        [ style "text-align" "center"
         ]
-        [ span
-            [ style "text-align" "center"
-            ]
-            [ ltext o.text l ]
-        , hr [] []
-        , requirements o.requirements l
-        , hr [] []
-        , outcomes o.outcomes l
-        ]
-    , case dim of
-        NoDim -> text ""
-        Dim strength ->
-          Components.Card.card { pops = False }
-            [ style "background" "black"
-            , style "border-color" "black"
-            , style "opacity"
-              <| case strength of
-                  DimStrong -> "0.3"
-                  DimWeak -> "0.1"
-            , style "position" "absolute"
-            , style "top" "0"
-            , style "left" "0"
-            ]
-            []
+        [ ltext o.text l ]
+    , hr [] []
+    , requirements o.requirements l
+    , hr [] []
+    , outcomes o.outcomes l
     ]
 
 
@@ -203,11 +194,14 @@ handCard i handSize c l =
 type CardMsg = CardClickedCardMsg
 card : { card : Card, selected : Bool } -> LHtml CardMsg
 card c l =
-  Components.Card.card { pops = True }
+  Components.Card.card
+    { pops = True
+    , onClick = Just CardClickedCardMsg
+    , dim = 0.0
+    }
     [ if c.selected
       then style "transform" "translateY(-16px)"
       else attribute "a" "a"
-    , onClick CardClickedCardMsg
     ]
     [ span
         []

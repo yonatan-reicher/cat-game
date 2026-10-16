@@ -7,6 +7,7 @@ module Components.Card exposing
 -- Elm
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events
 -- Our
 import Jrelm.Html exposing (stylesheet)
 import Jrelm.Rgb as Rgb
@@ -37,10 +38,18 @@ cardSize =
   }
 
 
-card : { pops : Bool } -> List (Attribute msg) -> List (Html msg) -> Html msg
-card { pops } attributes children =
+card : { pops : Bool, onClick : Maybe msg, dim : Float } -> List (Attribute msg) -> List (Html msg) -> Html msg
+card { pops, onClick, dim } attributes children =
   div
-    ( class "card" :: class (if pops then "pops" else "") :: attributes )
+    ( [ class "card"
+      , class (if pops then "pops" else "")
+      , Html.Attributes.style "filter" ("brightness(" ++ String.fromFloat (1.0 - dim) ++ ")")
+      ] ++
+      (case onClick of
+          Just c -> [ Html.Events.onClick c ]
+          Nothing -> [])
+      ++ attributes
+    )
     children
 
 
