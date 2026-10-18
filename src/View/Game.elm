@@ -6,6 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 -- Our
 import Card exposing (Card)
+import Cat exposing (Cat)
 import Components.Card exposing (cardSize)
 import Event exposing (Event, Option, OptionIdx(..))
 import Except exposing (Except)
@@ -203,13 +204,22 @@ card c l =
       then style "transform" "translateY(-16px)"
       else attribute "a" "a"
     ]
-    [ span
-        []
-        [ case c.card of
-            Card.Cat -> ltext { en = "Cat", he = "חתול" } l
-            Card.Resource r -> ltext (Resource.toLString r) l
-        ]
-    ]
+    ( case c.card of
+        Card.Cat ct -> cat ct l
+        Card.Resource r -> [ h3 [] [ ltext (Resource.toLString r) l ] ]
+    )
+
+
+cat : Cat -> Local -> List (Html x)
+cat { name, pictureId } l =
+  [ h3 [] [ ltext name l ]
+  , object
+      [ attribute "data" ("/assets/cat-pictures/" ++ String.fromInt pictureId ++ ".svg")
+      , style "width" "100%"
+      , style "margin-top" "auto"
+      ]
+      []
+  ]
 
 
 handWidth : Int

@@ -32,7 +32,7 @@ match c rq =
   case rq.kind of
     Cat ->
       case c of
-        Card.Cat -> True
+        Card.Cat _ -> True
         _ -> False
     Resource rs -> c == Card.Resource rs
 

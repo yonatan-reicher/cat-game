@@ -35,8 +35,8 @@ type alias Hand = List { card : Card, selected : Bool }
 newGame : Random.Seed -> Game
 newGame r =
   { hand = 
-      [ Card.Cat
-      , Card.Cat
+      [ Card.Cat { name = { en = "Happy", he = "שמח" }, pictureId = 1 }
+      , Card.Cat { name = { en = "Caramel", he = "קרמל" }, pictureId = 1 }
       , Card.Resource CatFood
       , Card.Resource CatFood
       , Card.Resource Workers

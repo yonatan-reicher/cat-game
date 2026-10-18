@@ -1,10 +1,11 @@
 module Card exposing (..)
 
+import Cat exposing (Cat)
 import Resource exposing (Resource)
 
 
 type Card
-  = Cat
+  = Cat Cat
   | Resource Resource
 
 
