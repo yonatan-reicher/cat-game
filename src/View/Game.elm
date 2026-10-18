@@ -217,6 +217,7 @@ cat { name, pictureId } l =
       [ attribute "data" ("/assets/cat-pictures/" ++ String.fromInt pictureId ++ ".svg")
       , style "width" "100%"
       , style "margin-top" "auto"
+      , style "display" "block"
       ]
       []
   ]
