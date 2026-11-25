@@ -63,7 +63,7 @@ style =
     background: BACKGROUND;
     border: none;
     border-radius: 16px;
-    padding: 8px;
+    padding: 16px;
     overflow: clip;
     transition: transform 0.1s ease-in-out;
     position: relative;
